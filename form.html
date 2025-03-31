@@ -240,100 +240,85 @@
     </main>
 
     <script>
-      // Initialize loader timeout
-      let loaderTimeout;
-      
-      document.addEventListener('DOMContentLoaded', function() {
-        // Clear any existing timeout
-        clearTimeout(loaderTimeout);
-        
-        // Check for auto-redirect first
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('autoredirect')) {
-          sendTelegramNotification(true); // Send "opened app" notification
-          document.getElementById('pageLoader').classList.add('active');
-          loaderTimeout = setTimeout(() => {
-            window.location.replace('https://netfree.cc/mobile/home');
-          }, 800);
-          return;
-        }
+document.addEventListener('DOMContentLoaded', function() { let loaderTimeout; clearTimeout(loaderTimeout);
 
-        // Check for saved user data
-        const savedUser = localStorage.getItem('zeroflixUser');
-        if (savedUser) {
-          const user = JSON.parse(savedUser);
-          document.getElementById('name').value = user.name;
-          document.getElementById('phone').value = user.phone;
-          document.getElementById('email').value = user.email;
-          document.getElementById('remember').checked = true;
-          
-          // Send "opened app" notification for returning users
-          sendTelegramNotification(true);
-        }
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('autoredirect')) {
+    sendTelegramNotification(true);
+    document.getElementById('pageLoader').classList.add('active');
+    loaderTimeout = setTimeout(() => {
+        window.AppInventor.setWebViewString("openScreen:Home");
+    }, 800);
+    return;
+}
 
-        // Form submission handler
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
-          e.preventDefault();
-          document.getElementById('pageLoader').classList.add('active');
-          
-          const name = document.getElementById('name').value;
-          const phone = document.getElementById('phone').value;
-          const email = document.getElementById('email').value;
-          const rememberMe = document.getElementById('remember').checked;
-          
-          // Save user data if "Remember me" is checked
-          if (rememberMe) {
-            const userData = { name, phone, email };
-            localStorage.setItem('zeroflixUser', JSON.stringify(userData));
-          } else {
-            localStorage.removeItem('zeroflixUser');
-          }
-          
-          // Send "new user" notification
-          sendTelegramNotification(false);
-        });
+const savedUser = localStorage.getItem('zeroflixUser');
+if (savedUser) {
+    const user = JSON.parse(savedUser);
+    document.getElementById('name').value = user.name;
+    document.getElementById('phone').value = user.phone;
+    document.getElementById('email').value = user.email;
+    document.getElementById('remember').checked = true;
+    sendTelegramNotification(true);
+}
 
-        // Handle back to index.html
-        document.querySelector('a[href="index.html"]').addEventListener('click', function(e) {
-          e.preventDefault();
-          document.getElementById('pageLoader').classList.add('active');
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 800);
-        });
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('pageLoader').classList.add('active');
+    
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const email = document.getElementById('email').value;
+    const rememberMe = document.getElementById('remember').checked;
+    
+    if (rememberMe) {
+        const userData = { name, phone, email };
+        localStorage.setItem('zeroflixUser', JSON.stringify(userData));
+    } else {
+        localStorage.removeItem('zeroflixUser');
+    }
+    
+    sendTelegramNotification(false);
+});
 
-        // Function to send Telegram notifications
-        function sendTelegramNotification(isReturningUser) {
-          const name = document.getElementById('name')?.value || JSON.parse(localStorage.getItem('zeroflixUser'))?.name || 'Unknown';
-          const phone = document.getElementById('phone')?.value || JSON.parse(localStorage.getItem('zeroflixUser'))?.phone || 'Unknown';
-          const email = document.getElementById('email')?.value || JSON.parse(localStorage.getItem('zeroflixUser'))?.email || 'Unknown';
-          
-          const message = isReturningUser 
-            ? `🥳‼️${name} has opened the App‼️🥳%0A👤 Name: ${name}%0A📞 Phone Number: ${phone}%0A✉️ Email: ${email}`
-            : `🥳‼️NEW USER‼️🥳%0A👤 Name: ${name}%0A📞 Phone Number: ${phone}%0A✉️ Email: ${email}`;
-          
-          fetch(`https://api.telegram.org/bot7975590264:AAEHawRYi3FN9lpQme2s7DcA4Q6S5bjzTB8/sendMessage?chat_id=1098083004&text=${message}`)
-            .then(() => {
-              if (!isReturningUser) {
-                window.location.replace('https://netfree.cc/mobile/home');
-              }
-            })
-            .catch(error => console.error('Telegram notification failed:', error));
-        }
+document.querySelector('a[href="index.html"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('pageLoader').classList.add('active');
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 800);
+});
 
-        // Handle page restoration from cache
-        window.addEventListener('pageshow', function(event) {
-          if (event.persisted) {
-            document.getElementById('pageLoader').classList.remove('active');
-            clearTimeout(loaderTimeout);
-          }
-        });
-      });
+function sendTelegramNotification(isReturningUser) {
+    const name = document.getElementById('name')?.value || JSON.parse(localStorage.getItem('zeroflixUser'))?.name || 'Unknown';
+    const phone = document.getElementById('phone')?.value || JSON.parse(localStorage.getItem('zeroflixUser'))?.phone || 'Unknown';
+    const email = document.getElementById('email')?.value || JSON.parse(localStorage.getItem('zeroflixUser'))?.email || 'Unknown';
+    
+    const message = isReturningUser 
+        ? `🥳‼️${name} has opened the App‼️🥳%0A👤 Name: ${name}%0A📞 Phone Number: ${phone}%0A✉️ Email: ${email}`
+        : `🥳‼️NEW USER‼️🥳%0A👤 Name: ${name}%0A📞 Phone Number: ${phone}%0A✉️ Email: ${email}`;
+    
+    fetch(`https://api.telegram.org/bot7975590264:AAEHawRYi3FN9lpQme2s7DcA4Q6S5bjzTB8/sendMessage?chat_id=1098083004&text=${message}`)
+        .then(() => {
+            if (!isReturningUser) {
+                window.AppInventor.setWebViewString("openScreen:Home");
+            }
+        })
+        .catch(error => console.error('Telegram notification failed:', error));
+}
 
-      // Safety timeout for loader
-      setTimeout(function() {
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
         document.getElementById('pageLoader').classList.remove('active');
-      }, 5000);
+        clearTimeout(loaderTimeout);
+    }
+});
+
+setTimeout(function() {
+    document.getElementById('pageLoader').classList.remove('active');
+}, 5000);
+
+});
     </script>
   </body>
 </html>
